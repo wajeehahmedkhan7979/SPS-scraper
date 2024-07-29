@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinkedIn Scraper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        .container {
+            display: flex;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-group button {
+            width: 100%;
+            padding: 10px;
+            background-color: #0073b1;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #005f8d;
+        }
+        .message {
+            margin-left: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .message p {
+            text-align: center;
+        }
+        .download-link {
+            display: none;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div>
+            <h2>LinkedIn Scraper</h2>
+            <div class="form-group">
+                <label for="email">LinkedIn Email</label>
+                <input type="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">LinkedIn Password</label>
+                <input type="password" id="password" required>
+            </div>
+            <div class="form-group">
+                <label for="company">Company Name</label>
+                <input type="text" id="company" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Filter by Description</label>
+                <input type="text" id="description" placeholder="Leave blank to skip">
+            </div>
+            <div class="form-group">
+                <label for="location">Filter by Location</label>
+                <input type="text" id="location" placeholder="Leave blank to skip">
+            </div>
+            <div class="form-group">
+                <button id="submit">Start Scraping</button>
+            </div>
+        </div>
+        <div class="message" id="message">
+            <p id="status"></p>
+            <div class="download-link" id="download-link">
+                <a id="download-url" href="#">Download CSV</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('submit').addEventListener('click', async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const company = document.getElementById('company').value;
+            const description = document.getElementById('description').value || 'n';
+            const location = document.getElementById('location').value || 'n';
+
+            const response = await fetch('http://127.0.0.1:5000/scrape', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email,
+                    password,
+                    description,
+                    location,
+                    company
+                })
+            });
+
+            const result = await response.json();
+            document.getElementById('status').innerText = result.message;
+
+            if (response.ok) {
+                const downloadLink = document.getElementById('download-link');
+                const downloadUrl = document.getElementById('download-url');
+                downloadUrl.href = `http://127.0.0.1:5000/download/${result.filename}`;
+                downloadLink.style.display = 'block';
+            } else {
+                document.getElementById('download-link').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
